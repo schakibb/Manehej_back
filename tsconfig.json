@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     /* File Layout */
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
 
     /* Module Resolution */
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "target": "ES2022",
     "lib": ["ES2022"],
     "esModuleInterop": true,
@@ -36,6 +36,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
+  "include": ["src/**/*", "prisma/seed.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../errors/custom.errors';
 import { HTTP_STATUS } from '../constants/http.constants';
+import { isDevelopment } from '../constants/config.constants';
 
 export const errorHandler = (
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   let statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
   let message = 'Internal Server Error';
@@ -37,7 +38,7 @@ export const errorHandler = (
   }
 
   // Log error in development
-  if (process.env.NODE_ENV === 'development') {
+  if (isDevelopment) {
     console.error('Error:', error);
     console.error('Stack:', error.stack);
   }
@@ -47,7 +48,7 @@ export const errorHandler = (
     success: false,
     message,
     ...(errors && { errors }),
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+    ...(isDevelopment && { stack: error.stack }),
   });
 };
 

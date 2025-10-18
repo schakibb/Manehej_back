@@ -1,11 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
-import { sendSuccessResponse, sendErrorResponse } from '../utils/response.utils';
-import { validateRequest } from '../utils/validation.utils';
-import { adminLoginSchema, adminUpdateProfileSchema, adminChangePasswordSchema } from '../utils/validation.utils';
+import { sendSuccessResponse } from '../utils/response.utils';
+import { validateRequest } from '../validation/auth.validation';
+import {
+  adminLoginSchema,
+  adminUpdateProfileSchema,
+  adminChangePasswordSchema,
+} from '../validation/auth.validation';
 import { AppError } from '../errors/custom.errors';
 import { AuthenticatedRequest } from '../types/auth.types';
 import { parseTimeToMs } from '../utils/jwt.utils';
+import ENV from '../validation/env.validation';
 
 export class AuthController {
   // Admin login
@@ -22,24 +27,24 @@ export class AuthController {
       const result = await AuthService.login(validatedData, ipAddress, deviceInfo);
 
       // Set HTTP-only cookies
-      const accessTokenMaxAge = process.env.ACCESS_TOKEN_MAX_AGE || "15m";
-      const refreshTokenMaxAge = process.env.REFRESH_TOKEN_MAX_AGE || "7d";
+      const accessTokenMaxAge = ENV.ACCESS_TOKEN_MAX_AGE || '15m';
+      const refreshTokenMaxAge = ENV.REFRESH_TOKEN_MAX_AGE || '7d';
 
       // Convert time strings to milliseconds
       const accessTokenMs = parseTimeToMs(accessTokenMaxAge);
       const refreshTokenMs = parseTimeToMs(refreshTokenMaxAge);
 
-      res.cookie("accessToken", result.accessToken, {
+      res.cookie('accessToken', result.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: ENV.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: accessTokenMs,
       });
 
-      res.cookie("refreshToken", result.refreshToken, {
+      res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: ENV.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: refreshTokenMs,
       });
 
@@ -50,7 +55,11 @@ export class AuthController {
   }
 
   // Get admin profile
-  static async getProfile(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  static async getProfile(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       if (!req.admin) {
         throw new Error('Admin not authenticated');
@@ -64,7 +73,11 @@ export class AuthController {
   }
 
   // Update admin profile
-  static async updateProfile(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  static async updateProfile(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       if (!req.admin) {
         throw new Error('Admin not authenticated');
@@ -81,7 +94,11 @@ export class AuthController {
   }
 
   // Change admin password
-  static async changePassword(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  static async changePassword(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       if (!req.admin) {
         throw new Error('Admin not authenticated');
@@ -131,13 +148,13 @@ export class AuthController {
       const { accessToken } = await AuthService.refreshToken(refreshToken);
 
       // Set new access token cookie
-      const accessTokenMaxAge = process.env.ACCESS_TOKEN_MAX_AGE || "15m";
+      const accessTokenMaxAge = ENV.ACCESS_TOKEN_MAX_AGE || '15m';
       const accessTokenMs = parseTimeToMs(accessTokenMaxAge);
 
-      res.cookie("accessToken", accessToken, {
+      res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: ENV.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: accessTokenMs,
       });
 
@@ -148,7 +165,11 @@ export class AuthController {
   }
 
   // Get current admin info (middleware helper)
-  static async getCurrentAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  static async getCurrentAdmin(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       if (!req.admin) {
         throw new Error('Admin not authenticated');

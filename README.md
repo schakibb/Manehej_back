@@ -33,32 +33,37 @@ A secure admin authentication system for the Manehej platform built with Node.js
 ## Installation
 
 1. Clone the repository and navigate to the project directory:
+
    ```bash
    cd manehej-back
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp env.example .env
    ```
+
    Edit `.env` with your configuration:
    - Update `DATABASE_URL` with your PostgreSQL connection string
    - Set a secure `JWT_SECRET`
    - Configure other settings as needed
 
 4. Set up the database:
+
    ```bash
    # Generate Prisma client
    npm run db:generate
-   
+
    # Run database migrations
    npm run db:migrate
-   
+
    # Seed initial admin user
    npm run db:seed
    ```
@@ -79,6 +84,7 @@ A secure admin authentication system for the Manehej platform built with Node.js
 ### Authentication Routes (`/api/admin/auth`)
 
 #### Public Routes
+
 - `POST /login` - Admin login
   ```json
   {
@@ -88,6 +94,7 @@ A secure admin authentication system for the Manehej platform built with Node.js
   ```
 
 #### Protected Routes (require authentication)
+
 - `GET /profile` - Get admin profile
 - `PUT /profile` - Update admin profile
 - `PUT /change-password` - Change admin password
@@ -96,11 +103,13 @@ A secure admin authentication system for the Manehej platform built with Node.js
 - `GET /me` - Get current admin info
 
 ### Health Check
+
 - `GET /health` - API health status
 
 ## Default Admin Credentials
 
 After running the seed script, you can login with:
+
 - **Email**: admin@manehej.com
 - **Password**: Admin123!@#
 
@@ -129,6 +138,7 @@ After running the seed script, you can login with:
 ## Database Schema
 
 ### Admin Model
+
 - `id`: UUID primary key
 - `name`: Admin full name
 - `email`: Unique email address
@@ -140,6 +150,7 @@ After running the seed script, you can login with:
 - `updated_at`: Last update date
 
 ### AdminSession Model
+
 - `id`: UUID primary key
 - `admin_id`: Reference to admin
 - `token_hash`: Hashed JWT token
@@ -153,6 +164,7 @@ After running the seed script, you can login with:
 ## Development
 
 1. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -164,6 +176,7 @@ After running the seed script, you can login with:
 ## Production Deployment
 
 1. Build the project:
+
    ```bash
    npm run build
    ```
@@ -171,6 +184,7 @@ After running the seed script, you can login with:
 2. Set production environment variables
 
 3. Deploy database migrations:
+
    ```bash
    npm run db:deploy
    ```
@@ -183,6 +197,7 @@ After running the seed script, you can login with:
 ## Error Handling
 
 The API returns consistent error responses:
+
 ```json
 {
   "success": false,

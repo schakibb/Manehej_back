@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { AdminRole } from './types/auth.types';
-import { hashPassword } from './utils/password.utils';
+import { AdminRole } from '../src/types/auth.types';
+import { hashPassword } from '../src/utils/password.utils';
 
 const prisma = new PrismaClient();
 
@@ -45,7 +45,6 @@ async function seedAdmin() {
     console.log('   Default credentials:');
     console.log(`   Email: admin@manehej.com`);
     console.log(`   Password: ${defaultPassword}`);
-
   } catch (error) {
     console.error('❌ Error seeding admin user:', error);
     throw error;

@@ -1,23 +1,31 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword, comparePassword, validatePasswordStrength } from '../utils/password.utils';
 import { createAccessToken, createRefreshToken } from '../utils/jwt.utils';
-import { NotFoundError, AuthenticationError, ValidationError, ConflictError } from '../errors/custom.errors';
-import { 
-  AdminLoginRequest, 
-  AdminLoginResponse, 
-  AdminProfileResponse, 
-  AdminUpdateProfileRequest, 
+import {
+  NotFoundError,
+  AuthenticationError,
+  ValidationError,
+  ConflictError,
+} from '../errors/custom.errors';
+import {
+  AdminLoginRequest,
+  AdminLoginResponse,
+  AdminProfileResponse,
+  AdminUpdateProfileRequest,
   AdminUpdateProfileResponse,
   AdminChangePasswordRequest,
   AdminChangePasswordResponse,
-  AdminRole
+  AdminRole,
 } from '../types/auth.types';
-
-const prisma = new PrismaClient();
+import { prisma } from '../utils/prisma.utils';
 
 export class AuthService {
   // Admin login
-  static async login(loginData: AdminLoginRequest, ipAddress?: string, deviceInfo?: string): Promise<{ admin: any; accessToken: string; refreshToken: string }> {
+  static async login(
+    loginData: AdminLoginRequest,
+    ipAddress?: string,
+    deviceInfo?: string,
+  ): Promise<{ admin: any; accessToken: string; refreshToken: string }> {
     const { email, password } = loginData;
 
     // Find admin by email
@@ -57,7 +65,7 @@ export class AuthService {
 
     // Hash the refresh token for storage
     const refreshTokenHash = await hashPassword(refreshToken);
-    
+
     // Create session with refresh token
     await prisma.adminSession.create({
       data: {
@@ -111,7 +119,10 @@ export class AuthService {
   }
 
   // Update admin profile
-  static async updateProfile(adminId: string, updateData: AdminUpdateProfileRequest): Promise<AdminUpdateProfileResponse> {
+  static async updateProfile(
+    adminId: string,
+    updateData: AdminUpdateProfileRequest,
+  ): Promise<AdminUpdateProfileResponse> {
     const { name, email } = updateData;
 
     // Check if admin exists
@@ -160,7 +171,10 @@ export class AuthService {
   }
 
   // Change admin password
-  static async changePassword(adminId: string, passwordData: AdminChangePasswordRequest): Promise<AdminChangePasswordResponse> {
+  static async changePassword(
+    adminId: string,
+    passwordData: AdminChangePasswordRequest,
+  ): Promise<AdminChangePasswordResponse> {
     const { current_password, new_password } = passwordData;
 
     // Find admin
@@ -266,7 +280,9 @@ export class AuthService {
   }
 
   // Verify admin session
-  static async verifySession(tokenHash: string): Promise<{ adminId: string; email: string; role: AdminRole } | null> {
+  static async verifySession(
+    tokenHash: string,
+  ): Promise<{ adminId: string; email: string; role: AdminRole } | null> {
     const session = await prisma.adminSession.findFirst({
       where: {
         token_hash: tokenHash,

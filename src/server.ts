@@ -1,14 +1,14 @@
 import app from './app';
-import { PrismaClient } from '@prisma/client';
 import { AuthService } from './services/auth.service';
+import ENV from './validation/env.validation';
+import { disconnectPrisma, prisma } from './utils/prisma.utils';
 
-const PORT = process.env.PORT || 3001;
-const prisma = new PrismaClient();
+const PORT = ENV.PORT || 3001;
 
 // Graceful shutdown handler
 const gracefulShutdown = async (signal: string) => {
   console.log(`\n${signal} received. Starting graceful shutdown...`);
-  
+
   try {
     // Close server
     server.close(() => {
@@ -16,13 +16,13 @@ const gracefulShutdown = async (signal: string) => {
     });
 
     // Disconnect from database
-    await prisma.$disconnect();
+    await disconnectPrisma();
     console.log('Database connection closed.');
-    
+
     // Clean up expired sessions
     await AuthService.cleanupExpiredSessions();
     console.log('Expired sessions cleaned up.');
-    
+
     process.exit(0);
   } catch (error) {
     console.error('Error during shutdown:', error);
@@ -55,7 +55,8 @@ const server = app.listen(PORT, () => {
 });
 
 // Database connection test
-prisma.$connect()
+prisma
+  .$connect()
   .then(() => {
     console.log('✅ Database connected successfully');
   })
