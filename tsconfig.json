@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     /* File Layout */
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
 
     /* Module Resolution */
@@ -36,6 +36,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
+  "include": [".", "prisma/seed.ts"],
   "exclude": ["node_modules", "dist"]
 }
