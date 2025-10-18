@@ -1,3 +1,3 @@
-import ENV from "../validation/env.validation";
+import ENV from '../validation/env.validation';
 
-export const isDevelopment = ENV.NODE_ENV === "development";
+export const isDevelopment = ENV.NODE_ENV === 'development';

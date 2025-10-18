@@ -1,6 +1,6 @@
 // AdminRole enum - only ADMIN role
 export enum AdminRole {
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
 }
 
 export interface AdminLoginRequest {

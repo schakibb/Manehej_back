@@ -2,6 +2,7 @@
   "name": "quotify_backend",
   "version": "1.0.0",
   "main": "src/server.ts",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "tsc",
@@ -10,7 +11,12 @@
     "db:migrate": "dotenv -e .env -- prisma migrate dev --skip-seed",
     "db:deploy": "dotenv -e .env -- prisma migrate deploy",
     "db:studio": "dotenv -e .env -- prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "prepare": "husky",
+    "lint": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,js}\"",
+    "type-check": "tsc --noEmit",
+    "lint-staged": "npm run lint && npm run format"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +56,7 @@
     "prisma": "^6.15.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.46.1"
   }
 }

@@ -1,16 +1,12 @@
-import { PrismaClient } from "@prisma/client";
-import {
-  hashPassword,
-  comparePassword,
-  validatePasswordStrength,
-} from "../utils/password.utils";
-import { createAccessToken, createRefreshToken } from "../utils/jwt.utils";
+import { PrismaClient } from '@prisma/client';
+import { hashPassword, comparePassword, validatePasswordStrength } from '../utils/password.utils';
+import { createAccessToken, createRefreshToken } from '../utils/jwt.utils';
 import {
   NotFoundError,
   AuthenticationError,
   ValidationError,
   ConflictError,
-} from "../errors/custom.errors";
+} from '../errors/custom.errors';
 import {
   AdminLoginRequest,
   AdminLoginResponse,
@@ -20,15 +16,15 @@ import {
   AdminChangePasswordRequest,
   AdminChangePasswordResponse,
   AdminRole,
-} from "../types/auth.types";
-import { prisma } from "../utils/prisma.utils";
+} from '../types/auth.types';
+import { prisma } from '../utils/prisma.utils';
 
 export class AuthService {
   // Admin login
   static async login(
     loginData: AdminLoginRequest,
     ipAddress?: string,
-    deviceInfo?: string
+    deviceInfo?: string,
   ): Promise<{ admin: any; accessToken: string; refreshToken: string }> {
     const { email, password } = loginData;
 
@@ -38,20 +34,17 @@ export class AuthService {
     });
 
     if (!admin) {
-      throw new AuthenticationError("Invalid email or password");
+      throw new AuthenticationError('Invalid email or password');
     }
 
     if (!admin.is_active) {
-      throw new AuthenticationError("Account is deactivated");
+      throw new AuthenticationError('Account is deactivated');
     }
 
     // Verify password
-    const isPasswordValid = await comparePassword(
-      password,
-      admin.password_hash
-    );
+    const isPasswordValid = await comparePassword(password, admin.password_hash);
     if (!isPasswordValid) {
-      throw new AuthenticationError("Invalid email or password");
+      throw new AuthenticationError('Invalid email or password');
     }
 
     // Update last login
@@ -115,12 +108,12 @@ export class AuthService {
     });
 
     if (!admin) {
-      throw new NotFoundError("Admin not found");
+      throw new NotFoundError('Admin not found');
     }
 
     return {
       success: true,
-      message: "Profile retrieved successfully",
+      message: 'Profile retrieved successfully',
       data: admin,
     };
   }
@@ -128,7 +121,7 @@ export class AuthService {
   // Update admin profile
   static async updateProfile(
     adminId: string,
-    updateData: AdminUpdateProfileRequest
+    updateData: AdminUpdateProfileRequest,
   ): Promise<AdminUpdateProfileResponse> {
     const { name, email } = updateData;
 
@@ -138,7 +131,7 @@ export class AuthService {
     });
 
     if (!existingAdmin) {
-      throw new NotFoundError("Admin not found");
+      throw new NotFoundError('Admin not found');
     }
 
     // Check if email is already taken by another admin
@@ -148,7 +141,7 @@ export class AuthService {
       });
 
       if (emailExists) {
-        throw new ConflictError("Email already exists");
+        throw new ConflictError('Email already exists');
       }
     }
 
@@ -172,7 +165,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: "Profile updated successfully",
+      message: 'Profile updated successfully',
       data: updatedAdmin,
     };
   }
@@ -180,7 +173,7 @@ export class AuthService {
   // Change admin password
   static async changePassword(
     adminId: string,
-    passwordData: AdminChangePasswordRequest
+    passwordData: AdminChangePasswordRequest,
   ): Promise<AdminChangePasswordResponse> {
     const { current_password, new_password } = passwordData;
 
@@ -190,24 +183,19 @@ export class AuthService {
     });
 
     if (!admin) {
-      throw new NotFoundError("Admin not found");
+      throw new NotFoundError('Admin not found');
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await comparePassword(
-      current_password,
-      admin.password_hash
-    );
+    const isCurrentPasswordValid = await comparePassword(current_password, admin.password_hash);
     if (!isCurrentPasswordValid) {
-      throw new AuthenticationError("Current password is incorrect");
+      throw new AuthenticationError('Current password is incorrect');
     }
 
     // Validate new password strength
     const passwordValidation = validatePasswordStrength(new_password);
     if (!passwordValidation.isValid) {
-      throw new ValidationError(
-        passwordValidation.message || "Invalid password"
-      );
+      throw new ValidationError(passwordValidation.message || 'Invalid password');
     }
 
     // Hash new password
@@ -235,14 +223,12 @@ export class AuthService {
 
     return {
       success: true,
-      message: "Password changed successfully",
+      message: 'Password changed successfully',
     };
   }
 
   // Refresh token
-  static async refreshToken(
-    refreshToken: string
-  ): Promise<{ accessToken: string }> {
+  static async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
     // Find session by refresh token hash
     const refreshTokenHash = await hashPassword(refreshToken);
     const session = await prisma.adminSession.findFirst({
@@ -266,7 +252,7 @@ export class AuthService {
     });
 
     if (!session || !session.admin.is_active) {
-      throw new AuthenticationError("Invalid or expired refresh token");
+      throw new AuthenticationError('Invalid or expired refresh token');
     }
 
     // Generate new access token
@@ -295,7 +281,7 @@ export class AuthService {
 
   // Verify admin session
   static async verifySession(
-    tokenHash: string
+    tokenHash: string,
   ): Promise<{ adminId: string; email: string; role: AdminRole } | null> {
     const session = await prisma.adminSession.findFirst({
       where: {

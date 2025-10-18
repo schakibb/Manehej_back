@@ -12,7 +12,7 @@ export const sendSuccessResponse = <T>(
   res: Response,
   data: T,
   message: string = 'Success',
-  statusCode: number = HTTP_STATUS.OK
+  statusCode: number = HTTP_STATUS.OK,
 ): void => {
   const response: ApiResponse<T> = {
     success: true,
@@ -27,7 +27,7 @@ export const sendErrorResponse = (
   res: Response,
   message: string,
   statusCode: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
-  errors?: any[]
+  errors?: any[],
 ): void => {
   const response: ApiResponse = {
     success: false,
