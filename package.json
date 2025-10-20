@@ -13,10 +13,17 @@
     "db:studio": "dotenv -e .env -- prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "prepare": "husky",
-    "lint": "eslint src --fix",
-    "format": "prettier --write \"src/**/*.{ts,js}\"",
     "type-check": "tsc --noEmit",
-    "lint-staged": "npm run lint && npm run format"
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "prettier --write",
+      "eslint src --fix --quiet"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "keywords": [],
   "author": "",

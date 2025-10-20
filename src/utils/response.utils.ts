@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { HTTP_STATUS } from '../constants/http.constants';
+import { Response } from "express";
+import { HTTP_STATUS } from "../constants/http.constants";
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -11,7 +11,7 @@ export interface ApiResponse<T = any> {
 export const sendSuccessResponse = <T>(
   res: Response,
   data: T,
-  message: string = 'Success',
+  message: string = "Success",
   statusCode: number = HTTP_STATUS.OK,
 ): void => {
   const response: ApiResponse<T> = {
@@ -32,7 +32,7 @@ export const sendErrorResponse = (
   const response: ApiResponse = {
     success: false,
     message,
-    errors,
+    ...(errors ? { errors } : {}),
   };
 
   res.status(statusCode).json(response);

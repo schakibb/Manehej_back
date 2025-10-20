@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { AuthController } from '../controllers/auth.controller';
-import { authenticateAdmin } from '../middleware/auth.middleware';
-import rateLimit from 'express-rate-limit';
+import { Router } from "express";
+import { AuthController } from "../controllers/auth.controller";
+import { authenticateAdmin } from "../middleware/auth.middleware";
+import rateLimit from "express-rate-limit";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ const loginLimiter = rateLimit({
   max: 5, // limit each IP to 5 requests per windowMs
   message: {
     success: false,
-    message: 'Too many login attempts, please try again later.',
+    message: "Too many login attempts, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -23,23 +23,23 @@ const passwordChangeLimiter = rateLimit({
   max: 3, // limit each IP to 3 password change attempts per hour
   message: {
     success: false,
-    message: 'Too many password change attempts, please try again later.',
+    message: "Too many password change attempts, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 // Public routes (no authentication required)
-router.post('/login', loginLimiter, AuthController.login);
+router.post("/login", loginLimiter, AuthController.login);
 
 // Protected routes (authentication required)
 router.use(authenticateAdmin); // Apply authentication middleware to all routes below
 
-router.get('/profile', AuthController.getProfile);
-router.put('/profile', AuthController.updateProfile);
-router.put('/change-password', passwordChangeLimiter, AuthController.changePassword);
-router.post('/logout', AuthController.logout);
-router.post('/refresh-token', AuthController.refreshToken);
-router.get('/me', AuthController.getCurrentAdmin);
+router.get("/profile", AuthController.getProfile);
+router.put("/profile", AuthController.updateProfile);
+router.put("/change-password", passwordChangeLimiter, AuthController.changePassword);
+router.post("/logout", AuthController.logout);
+router.post("/refresh-token", AuthController.refreshToken);
+router.get("/me", AuthController.getCurrentAdmin);
 
 export default router;

@@ -1,10 +1,10 @@
-import { Response, NextFunction } from 'express';
-import { verifyAccessToken, verifyRefreshToken, parseTimeToMs } from '../utils/jwt.utils';
-import { AuthService } from '../services/auth.service';
-import { AuthenticationError, AuthorizationError } from '../errors/custom.errors';
-import { AuthenticatedRequest } from '../types/auth.types';
-import { AdminRole } from '../types/auth.types';
-import ENV from '../validation/env.validation';
+import { Response, NextFunction } from "express";
+import { verifyAccessToken, verifyRefreshToken, parseTimeToMs } from "../utils/jwt.utils";
+import { AuthService } from "../services/auth.service";
+import { AuthenticationError, AuthorizationError } from "../errors/custom.errors";
+import { AuthenticatedRequest } from "../types/auth.types";
+import { AdminRole } from "../types/auth.types";
+import ENV from "../validation/env.validation";
 
 // Authentication middleware to verify JWT tokens from cookies
 export const authenticateAdmin = async (
@@ -18,7 +18,7 @@ export const authenticateAdmin = async (
 
     // Check if both tokens are missing
     if (!accessToken && !refreshToken) {
-      throw new AuthenticationError('Access denied. Authentication required.');
+      throw new AuthenticationError("Access denied. Authentication required.");
     }
 
     try {
@@ -47,13 +47,13 @@ export const authenticateAdmin = async (
         const { accessToken: newAccessToken } = await AuthService.refreshToken(refreshToken);
 
         // Set new access token cookie
-        const accessTokenMaxAge = ENV.ACCESS_TOKEN_MAX_AGE || '15m';
+        const accessTokenMaxAge = ENV.ACCESS_TOKEN_MAX_AGE || "15m";
         const accessTokenMs = parseTimeToMs(accessTokenMaxAge);
 
-        res.cookie('accessToken', newAccessToken, {
+        res.cookie("accessToken", newAccessToken, {
           httpOnly: true,
-          secure: ENV.NODE_ENV === 'production',
-          sameSite: 'strict',
+          secure: ENV.NODE_ENV === "production",
+          sameSite: "strict",
           maxAge: accessTokenMs,
         });
 
@@ -67,11 +67,11 @@ export const authenticateAdmin = async (
         return next();
       } catch (refreshTokenError) {
         // Both tokens are invalid
-        throw new AuthenticationError('Session expired. Please login again.');
+        throw new AuthenticationError("Session expired. Please login again.");
       }
     }
 
-    throw new AuthenticationError('Access denied. Authentication required.');
+    throw new AuthenticationError("Access denied. Authentication required.");
   } catch (error) {
     next(error);
   }
@@ -82,11 +82,11 @@ export const requireRole = (roles: AdminRole[]) => {
   return (req: AuthenticatedRequest, _res: Response, next: NextFunction): void => {
     try {
       if (!req.admin) {
-        throw new AuthenticationError('Admin not authenticated');
+        throw new AuthenticationError("Admin not authenticated");
       }
 
       if (!roles.includes(req.admin.role)) {
-        throw new AuthorizationError('Insufficient permissions');
+        throw new AuthorizationError("Insufficient permissions");
       }
 
       next();
