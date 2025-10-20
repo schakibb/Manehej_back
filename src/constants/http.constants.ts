@@ -11,12 +11,12 @@ export const HTTP_STATUS = {
 } as const;
 
 export const HTTP_MESSAGES = {
-  SUCCESS: 'Success',
-  BAD_REQUEST: 'Bad Request',
-  UNAUTHORIZED: 'Unauthorized',
-  FORBIDDEN: 'Forbidden',
-  NOT_FOUND: 'Not Found',
-  CONFLICT: 'Conflict',
-  UNPROCESSABLE_ENTITY: 'Unprocessable Entity',
-  INTERNAL_SERVER_ERROR: 'Internal Server Error',
+  SUCCESS: "Success",
+  BAD_REQUEST: "Bad Request",
+  UNAUTHORIZED: "Unauthorized",
+  FORBIDDEN: "Forbidden",
+  NOT_FOUND: "Not Found",
+  CONFLICT: "Conflict",
+  UNPROCESSABLE_ENTITY: "Unprocessable Entity",
+  INTERNAL_SERVER_ERROR: "Internal Server Error",
 } as const;

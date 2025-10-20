@@ -1,5 +1,5 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import { isDevelopment } from '../constants/config.constants';
+import { PrismaClient, Prisma } from "@prisma/client";
+import { isDevelopment } from "../constants/config.constants";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -8,10 +8,10 @@ const globalForPrisma = globalThis as unknown as {
 const prismaClientOptions: Prisma.PrismaClientOptions = {
   log: isDevelopment
     ? [
-        { emit: 'stdout', level: 'error' },
-        { emit: 'stdout', level: 'warn' },
+        { emit: "stdout", level: "error" },
+        { emit: "stdout", level: "warn" },
       ]
-    : ['error'],
+    : ["error"],
   omit: {
     admin: {
       password_hash: true,
