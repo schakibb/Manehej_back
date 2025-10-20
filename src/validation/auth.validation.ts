@@ -33,7 +33,9 @@ export const validateRequest = <T>(schema: z.ZodSchema<T>, data: unknown): T => 
     return schema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(error.errors.map((err) => err.message).join(", "));
+      const flattened = z.flattenError(error);
+
+      throw new Error(flattened.formErrors.join(", ") || "Invalid request data");
     }
     throw error;
   }

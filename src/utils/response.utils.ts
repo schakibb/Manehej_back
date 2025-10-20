@@ -32,7 +32,7 @@ export const sendErrorResponse = (
   const response: ApiResponse = {
     success: false,
     message,
-    errors,
+    ...(errors ? { errors } : {}),
   };
 
   res.status(statusCode).json(response);
