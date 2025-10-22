@@ -36,8 +36,6 @@ export const parseTimeToMs = (timeString: string | undefined): number => {
 const ACCESS_TOKEN_SECRET = ENV.ACCESS_TOKEN_SECRET;
 const REFRESH_TOKEN_SECRET = ENV.REFRESH_TOKEN_SECRET;
 
-console.log();
-
 if (!ACCESS_TOKEN_SECRET) {
   throw new Error("ACCESS_TOKEN_SECRET environment variable is required");
 }
