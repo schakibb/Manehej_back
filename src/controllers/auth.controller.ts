@@ -11,7 +11,7 @@ import {
   adminUpdateProfileSchema,
   adminChangePasswordSchema,
 } from "../validation/auth.validation";
-import { AppError } from "../errors/custom.errors";
+import { AppError, AuthorizationError } from "../errors/custom.errors";
 import { AuthenticatedRequest } from "../types/auth.types";
 import { parseTimeToMs } from "../utils/jwt.utils";
 import ENV from "../validation/env.validation";
@@ -169,6 +169,27 @@ export class AuthController {
       });
 
       sendSuccessResponse(res, { accessToken }, "Token refreshed successfully");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async verifySession(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const refreshToken = req.cookies?.refreshToken;
+      if (!refreshToken) {
+        throw new AuthorizationError("No refresh token found");
+      }
+      const verificationResult = await AuthService.verifySession(refreshToken);
+      if (!verificationResult) {
+        throw new AppError("Invalid or expired session", 401);
+      }
+
+      sendSuccessResponse(res, verificationResult, "Session is valid");
     } catch (error) {
       next(error);
     }

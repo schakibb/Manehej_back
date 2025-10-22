@@ -8,6 +8,7 @@ const router = Router();
 
 //* ------------- Public Routes ------------- *//
 router.post("/admin/auth/login", loginLimiter, AuthController.login);
+router.get("/admin/auth/verify-session", AuthController.verifySession);
 
 //* ------------- Protected Routes ------------- *//
 router.use(authenticateAdmin);

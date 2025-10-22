@@ -230,15 +230,13 @@ export class AuthService {
 
   // Refresh token
   static async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
-    // Find session by refresh token hash
-    const refreshTokenHash = await hashPassword(refreshToken);
-    const session = await prisma.adminSession.findFirst({
+    const now = new Date();
+
+    // Get active sessions that haven't expired
+    const activeSessions = await prisma.adminSession.findMany({
       where: {
-        token_hash: refreshTokenHash,
         is_active: true,
-        expires_at: {
-          gt: new Date(),
-        },
+        expires_at: { gt: now },
       },
       include: {
         admin: {
@@ -252,38 +250,68 @@ export class AuthService {
       },
     });
 
-    if (!session || !session.admin.is_active) {
-      throw new AuthorizationError("Invalid or expired refresh token");
+    // Try to find a matching session using comparePassword
+    for (const session of activeSessions) {
+      const isValidToken = await comparePassword(refreshToken, session.token_hash);
+      if (isValidToken && session.admin.is_active) {
+        const accessToken = createAccessToken({
+          admin_id: session.admin.id,
+          email: session.admin.email,
+          role: session.admin.role as AdminRole,
+        });
+
+        return { accessToken };
+      }
     }
 
-    // Generate new access token
-    const accessToken = createAccessToken({
-      admin_id: session.admin.id,
-      email: session.admin.email,
-      role: session.admin.role as AdminRole,
-    });
-
-    return { accessToken };
+    throw new AuthorizationError("Invalid or expired refresh token");
   }
 
   // Logout (invalidate session)
   static async logout(refreshToken: string): Promise<void> {
-    const refreshTokenHash = await hashPassword(refreshToken);
-    await prisma.adminSession.updateMany({
+    const activeSessions = await prisma.adminSession.findMany({
       where: {
-        token_hash: refreshTokenHash,
         is_active: true,
       },
-      data: {
-        is_active: false,
-      },
     });
+
+    const sessionUpdates = [];
+    for (const session of activeSessions) {
+      const isValidToken = await comparePassword(refreshToken, session.token_hash);
+      if (isValidToken) {
+        sessionUpdates.push(
+          prisma.adminSession.update({
+            where: { id: session.id },
+            data: { is_active: false },
+          }),
+        );
+      }
+    }
+
+    if (sessionUpdates.length > 0) {
+      await Promise.all(sessionUpdates);
+    }
   }
 
   // Verify admin session
-  static async verifySession(
-    tokenHash: string,
-  ): Promise<{ adminId: string; email: string; role: AdminRole } | null> {
+  static async verifySession(refershToken: string): Promise<any> {
+    const activeSessions = await prisma.adminSession.findMany({
+      where: {
+        is_active: true,
+      },
+    });
+    let tokenHash: string | null = null;
+    for (const session of activeSessions) {
+      const isValidToken = await comparePassword(refershToken, session.token_hash);
+      if (isValidToken) {
+        tokenHash = session.token_hash;
+        break;
+      }
+    }
+
+    if (!tokenHash) {
+      return null;
+    }
     const session = await prisma.adminSession.findFirst({
       where: {
         token_hash: tokenHash,
@@ -293,14 +321,7 @@ export class AuthService {
         },
       },
       include: {
-        admin: {
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            is_active: true,
-          },
-        },
+        admin: true,
       },
     });
 
@@ -315,9 +336,12 @@ export class AuthService {
     });
 
     return {
-      adminId: session.admin.id,
+      id: session.admin.id,
+      name: session.admin.name,
       email: session.admin.email,
-      role: session.admin.role as AdminRole,
+      role: session.admin.role,
+      is_active: session.admin.is_active,
+      last_login: session.admin.last_login,
     };
   }
 
