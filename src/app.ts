@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import authRoutes from "./routes/auth.routes";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
 import ENV from "./validation/env.validation";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./utils/auth";
 import { generalLimiter } from "./middleware/rateLimit.middleware";
+import router from "./routes/api";
 
 const app = express();
 
@@ -44,25 +44,21 @@ app.set("trust proxy", 1);
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Admin API is running",
+    message: "API is running",
     timestamp: new Date().toISOString(),
     environment: ENV.NODE_ENV || "development",
   });
 });
 
 // API routes
-app.use("/api/admin/auth", authRoutes);
+app.use("/api", router);
 
 // Root endpoint
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Manehej Admin API",
-    version: "1.0.0",
-    endpoints: {
-      health: "/health",
-      auth: "/api/admin/auth",
-    },
+    message: "Manehej API",
+    apiPath: "/api",
   });
 });
 

@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import { verifyAccessToken, verifyRefreshToken, parseTimeToMs } from "../utils/jwt.utils";
 import { AuthService } from "../services/auth.service";
-import { AuthenticationError, AuthorizationError } from "../errors/custom.errors";
+import { AuthorizationError, PermissionDeniedError } from "../errors/custom.errors";
 import { AuthenticatedRequest } from "../types/auth.types";
 import { AdminRole } from "../types/auth.types";
 import ENV from "../validation/env.validation";
@@ -15,10 +15,14 @@ export const authenticateAdmin = async (
   try {
     const accessToken = req.cookies?.accessToken;
     const refreshToken = req.cookies?.refreshToken;
+    // console.log("Tokens: ", {
+    //   accessToken,
+    //   refreshToken,
+    // });
 
     // Check if both tokens are missing
     if (!accessToken && !refreshToken) {
-      throw new AuthenticationError("Access denied. Authentication required.");
+      throw new AuthorizationError("Access denied. Authentication required.");
     }
 
     try {
@@ -67,11 +71,11 @@ export const authenticateAdmin = async (
         return next();
       } catch (refreshTokenError) {
         // Both tokens are invalid
-        throw new AuthenticationError("Session expired. Please login again.");
+        throw new AuthorizationError("Session expired. Please login again.");
       }
     }
 
-    throw new AuthenticationError("Access denied. Authentication required.");
+    throw new AuthorizationError("Access denied. Authentication required.");
   } catch (error) {
     next(error);
   }
@@ -82,11 +86,11 @@ export const requireRole = (roles: AdminRole[]) => {
   return (req: AuthenticatedRequest, _res: Response, next: NextFunction): void => {
     try {
       if (!req.admin) {
-        throw new AuthenticationError("Admin not authenticated");
+        throw new AuthorizationError("Admin not authenticated");
       }
 
       if (!roles.includes(req.admin.role)) {
-        throw new AuthorizationError("Insufficient permissions");
+        throw new PermissionDeniedError("Insufficient permissions");
       }
 
       next();

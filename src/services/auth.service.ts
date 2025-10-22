@@ -2,7 +2,7 @@ import { hashPassword, comparePassword, validatePasswordStrength } from "../util
 import { createAccessToken, createRefreshToken } from "../utils/jwt.utils";
 import {
   NotFoundError,
-  AuthenticationError,
+  AuthorizationError,
   ValidationError,
   ConflictError,
 } from "../errors/custom.errors";
@@ -35,17 +35,17 @@ export class AuthService {
     });
 
     if (!admin) {
-      throw new AuthenticationError("Invalid email or password");
+      throw new AuthorizationError("Invalid email or password");
     }
 
     if (!admin.is_active) {
-      throw new AuthenticationError("Account is deactivated");
+      throw new AuthorizationError("Account is deactivated");
     }
 
     // Verify password
     const isPasswordValid = await comparePassword(password, admin.password_hash);
     if (!isPasswordValid) {
-      throw new AuthenticationError("Invalid email or password");
+      throw new AuthorizationError("Invalid email or password");
     }
 
     // Update last login
@@ -190,7 +190,7 @@ export class AuthService {
     // Verify current password
     const isCurrentPasswordValid = await comparePassword(current_password, admin.password_hash);
     if (!isCurrentPasswordValid) {
-      throw new AuthenticationError("Current password is incorrect");
+      throw new AuthorizationError("Current password is incorrect");
     }
 
     // Validate new password strength
@@ -253,7 +253,7 @@ export class AuthService {
     });
 
     if (!session || !session.admin.is_active) {
-      throw new AuthenticationError("Invalid or expired refresh token");
+      throw new AuthorizationError("Invalid or expired refresh token");
     }
 
     // Generate new access token

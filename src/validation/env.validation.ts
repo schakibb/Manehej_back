@@ -21,6 +21,9 @@ const envSchema = z.object({
 
   LOG_LEVEL: z.enum(["error", "warn", "info", "http", "debug"]).default("info"),
 
+  BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
+  BETTER_AUTH_URL: z.url("BETTER_AUTH_URL must be a valid URL"),
+
   GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
   GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET is required"),
 });
