@@ -12,11 +12,6 @@ const prismaClientOptions: Prisma.PrismaClientOptions = {
         { emit: "stdout", level: "warn" },
       ]
     : ["error"],
-  omit: {
-    admin: {
-      password_hash: true,
-    },
-  },
 };
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient(prismaClientOptions);

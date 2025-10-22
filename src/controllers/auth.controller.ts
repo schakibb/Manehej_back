@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth.service";
 import { sendSuccessResponse } from "../utils/response.utils";
-import { validateRequest } from "../validation/auth.validation";
+import {
+  AdminChangePasswordSchema,
+  AdminUpdateProfileSchema,
+  validateRequest,
+} from "../validation/auth.validation";
 import {
   adminLoginSchema,
   adminUpdateProfileSchema,
@@ -20,7 +24,7 @@ export class AuthController {
       const validatedData = validateRequest(adminLoginSchema, req.body);
 
       // Extract IP address and device info
-      const ipAddress = req.ip || req.connection.remoteAddress || "unknown";
+      const ipAddress = req.ip || req.socket.remoteAddress || "unknown";
       const deviceInfo = req.get("User-Agent") || "unknown";
 
       // Authenticate admin
@@ -84,7 +88,10 @@ export class AuthController {
       }
 
       // Validate request data
-      const validatedData = validateRequest(adminUpdateProfileSchema, req.body);
+      const validatedData: AdminUpdateProfileSchema = validateRequest(
+        adminUpdateProfileSchema,
+        req.body,
+      );
 
       const result = await AuthService.updateProfile(req.admin.id, validatedData);
       sendSuccessResponse(res, result.data, result.message);
@@ -105,7 +112,10 @@ export class AuthController {
       }
 
       // Validate request data
-      const validatedData = validateRequest(adminChangePasswordSchema, req.body);
+      const validatedData: AdminChangePasswordSchema = validateRequest(
+        adminChangePasswordSchema,
+        req.body,
+      );
 
       const result = await AuthService.changePassword(req.admin.id, validatedData);
       sendSuccessResponse(res, null, result.message);

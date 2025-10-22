@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import { hashPassword, comparePassword, validatePasswordStrength } from "../utils/password.utils";
 import { createAccessToken, createRefreshToken } from "../utils/jwt.utils";
 import {
@@ -8,21 +7,23 @@ import {
   ConflictError,
 } from "../errors/custom.errors";
 import {
-  AdminLoginRequest,
-  AdminLoginResponse,
   AdminProfileResponse,
-  AdminUpdateProfileRequest,
   AdminUpdateProfileResponse,
-  AdminChangePasswordRequest,
   AdminChangePasswordResponse,
   AdminRole,
+  AuthTokenPayload,
 } from "../types/auth.types";
 import { prisma } from "../utils/prisma.utils";
+import {
+  AdminChangePasswordSchema,
+  AdminLoginSchema,
+  AdminUpdateProfileSchema,
+} from "../validation/auth.validation";
 
 export class AuthService {
   // Admin login
   static async login(
-    loginData: AdminLoginRequest,
+    loginData: AdminLoginSchema,
     ipAddress?: string,
     deviceInfo?: string,
   ): Promise<{ admin: any; accessToken: string; refreshToken: string }> {
@@ -54,10 +55,10 @@ export class AuthService {
     });
 
     // Generate access and refresh tokens
-    const tokenPayload = {
+    const tokenPayload: AuthTokenPayload = {
       admin_id: admin.id,
       email: admin.email,
-      role: admin.role,
+      role: admin.role as AdminRole,
     };
 
     const accessToken = createAccessToken(tokenPayload);
@@ -71,8 +72,8 @@ export class AuthService {
       data: {
         admin_id: admin.id,
         token_hash: refreshTokenHash,
-        ip_address: ipAddress,
-        device_info: deviceInfo,
+        ip_address: ipAddress || null,
+        device_info: deviceInfo || null,
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       },
     });
@@ -114,14 +115,14 @@ export class AuthService {
     return {
       success: true,
       message: "Profile retrieved successfully",
-      data: admin,
+      data: { ...admin, role: admin.role as AdminRole },
     };
   }
 
   // Update admin profile
   static async updateProfile(
     adminId: string,
-    updateData: AdminUpdateProfileRequest,
+    updateData: AdminUpdateProfileSchema,
   ): Promise<AdminUpdateProfileResponse> {
     const { name, email } = updateData;
 
@@ -166,14 +167,14 @@ export class AuthService {
     return {
       success: true,
       message: "Profile updated successfully",
-      data: updatedAdmin,
+      data: { ...updatedAdmin, role: updatedAdmin.role as AdminRole },
     };
   }
 
   // Change admin password
   static async changePassword(
     adminId: string,
-    passwordData: AdminChangePasswordRequest,
+    passwordData: AdminChangePasswordSchema,
   ): Promise<AdminChangePasswordResponse> {
     const { current_password, new_password } = passwordData;
 
@@ -259,7 +260,7 @@ export class AuthService {
     const accessToken = createAccessToken({
       admin_id: session.admin.id,
       email: session.admin.email,
-      role: session.admin.role,
+      role: session.admin.role as AdminRole,
     });
 
     return { accessToken };
@@ -316,7 +317,7 @@ export class AuthService {
     return {
       adminId: session.admin.id,
       email: session.admin.email,
-      role: session.admin.role,
+      role: session.admin.role as AdminRole,
     };
   }
 
