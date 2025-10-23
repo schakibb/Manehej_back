@@ -1,13 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth.service";
 import { sendSuccessResponse } from "../utils/response.utils";
-import { validateRequest } from "../validation/auth.validation";
+import {
+  AdminChangePasswordSchema,
+  AdminUpdateProfileSchema,
+  validateRequest,
+} from "../validation/auth.validation";
 import {
   adminLoginSchema,
   adminUpdateProfileSchema,
   adminChangePasswordSchema,
 } from "../validation/auth.validation";
-import { AppError } from "../errors/custom.errors";
+import { AppError, AuthorizationError } from "../errors/custom.errors";
 import { AuthenticatedRequest } from "../types/auth.types";
 import { parseTimeToMs } from "../utils/jwt.utils";
 import ENV from "../validation/env.validation";
@@ -20,7 +24,7 @@ export class AuthController {
       const validatedData = validateRequest(adminLoginSchema, req.body);
 
       // Extract IP address and device info
-      const ipAddress = req.ip || req.connection.remoteAddress || "unknown";
+      const ipAddress = req.ip || req.socket.remoteAddress || "unknown";
       const deviceInfo = req.get("User-Agent") || "unknown";
 
       // Authenticate admin
@@ -84,7 +88,10 @@ export class AuthController {
       }
 
       // Validate request data
-      const validatedData = validateRequest(adminUpdateProfileSchema, req.body);
+      const validatedData: AdminUpdateProfileSchema = validateRequest(
+        adminUpdateProfileSchema,
+        req.body,
+      );
 
       const result = await AuthService.updateProfile(req.admin.id, validatedData);
       sendSuccessResponse(res, result.data, result.message);
@@ -105,7 +112,10 @@ export class AuthController {
       }
 
       // Validate request data
-      const validatedData = validateRequest(adminChangePasswordSchema, req.body);
+      const validatedData: AdminChangePasswordSchema = validateRequest(
+        adminChangePasswordSchema,
+        req.body,
+      );
 
       const result = await AuthService.changePassword(req.admin.id, validatedData);
       sendSuccessResponse(res, null, result.message);
@@ -159,6 +169,27 @@ export class AuthController {
       });
 
       sendSuccessResponse(res, { accessToken }, "Token refreshed successfully");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async verifySession(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const refreshToken = req.cookies?.refreshToken;
+      if (!refreshToken) {
+        throw new AuthorizationError("No refresh token found");
+      }
+      const verificationResult = await AuthService.verifySession(refreshToken);
+      if (!verificationResult) {
+        throw new AppError("Invalid or expired session", 401);
+      }
+
+      sendSuccessResponse(res, verificationResult, "Session is valid");
     } catch (error) {
       next(error);
     }

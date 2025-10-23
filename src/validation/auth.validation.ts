@@ -6,6 +6,8 @@ export const adminLoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export type AdminLoginSchema = z.infer<typeof adminLoginSchema>;
+
 // Admin profile update validation schema
 export const adminUpdateProfileSchema = z.object({
   name: z
@@ -15,6 +17,8 @@ export const adminUpdateProfileSchema = z.object({
     .optional(),
   email: z.email("Invalid email format").optional(),
 });
+
+export type AdminUpdateProfileSchema = z.infer<typeof adminUpdateProfileSchema>;
 
 // Admin change password validation schema
 export const adminChangePasswordSchema = z
@@ -27,6 +31,8 @@ export const adminChangePasswordSchema = z
     message: "New password and confirm password don't match",
     path: ["confirm_password"],
   });
+
+export type AdminChangePasswordSchema = z.infer<typeof adminChangePasswordSchema>;
 
 export const validateRequest = <T>(schema: z.ZodSchema<T>, data: unknown): T => {
   try {

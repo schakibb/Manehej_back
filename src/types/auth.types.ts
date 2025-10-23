@@ -1,11 +1,8 @@
+import { Request } from "express";
+
 // AdminRole enum - only ADMIN role
 export enum AdminRole {
   ADMIN = "ADMIN",
-}
-
-export interface AdminLoginRequest {
-  email: string;
-  password: string;
 }
 
 export interface AdminLoginResponse {
@@ -24,30 +21,20 @@ export interface AdminLoginResponse {
   };
 }
 
+interface AdminProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: AdminRole;
+  is_active: boolean;
+  last_login?: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
 export interface AdminProfileResponse {
   success: boolean;
   message: string;
-  data?: {
-    id: string;
-    name: string;
-    email: string;
-    role: AdminRole;
-    is_active: boolean;
-    last_login?: Date;
-    created_at: Date;
-    updated_at: Date;
-  };
-}
-
-export interface AdminUpdateProfileRequest {
-  name?: string;
-  email?: string;
-}
-
-export interface AdminChangePasswordRequest {
-  current_password: string;
-  new_password: string;
-  confirm_password: string;
+  data?: AdminProfile;
 }
 
 export interface AdminChangePasswordResponse {
@@ -58,14 +45,7 @@ export interface AdminChangePasswordResponse {
 export interface AdminUpdateProfileResponse {
   success: boolean;
   message: string;
-  data?: {
-    id: string;
-    name: string;
-    email: string;
-    role: AdminRole;
-    is_active: boolean;
-    updated_at: Date;
-  };
+  data?: Partial<AdminProfile>;
 }
 
 export interface AuthTokenPayload {
